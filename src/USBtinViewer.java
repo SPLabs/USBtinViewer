@@ -31,6 +31,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import jssc.SerialPortList;
+import java.util.prefs.*;
 
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -209,6 +210,21 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
         
         // init message listener
         usbtin.addMessageListener(this);
+        
+        /*RETRIEVE FROM PREFERENCES THE LAST COM PORT NUMBER AND SPEED*/
+        // Retrieve the user preference node for the package com.mycompany
+
+
+        // Get the value of the preference;
+        // default value is returned if the preference does not exist
+        Preferences prefs = Preferences.userNodeForPackage(USBtinViewer.class);
+        String defaultValue = "COM1";
+        String propertyValue = prefs.get("COM_PORT", defaultValue);
+        serialPort.setSelectedItem(propertyValue);
+        
+        defaultValue="10000";
+        propertyValue = prefs.get("CAN_SPEED", defaultValue);
+        bitRate.setSelectedItem(propertyValue);
     }
 
     /**
@@ -245,6 +261,20 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
         logTable = new javax.swing.JTable();
         monitorScrollPane = new javax.swing.JScrollPane();
         monitorTable = new javax.swing.JTable();
+		ChartPane = new javax.swing.JPanel();
+        idField = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        canChart = new CANChart();
+        jLabel3 = new javax.swing.JLabel();
+        graphLengthTextField = new javax.swing.JTextField();
+        addIDButton = new javax.swing.JButton();
+        removeIDButton = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        typeComboBox = new javax.swing.JComboBox<>();
+        jLabel4 = new javax.swing.JLabel();
+        offsetComboBox = new javax.swing.JComboBox<>();
+        signedCheckBox = new javax.swing.JCheckBox();
+        littleEndianCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("USBtinViewer");
@@ -361,6 +391,128 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
 
         mainTabbedPane.addTab("Monitor", monitorScrollPane);
 
+		idField.setText("0");
+        idField.setToolTipText("");
+
+        jLabel1.setText("ID");
+
+        javax.swing.GroupLayout canChartLayout = new javax.swing.GroupLayout(canChart);
+        canChart.setLayout(canChartLayout);
+        canChartLayout.setHorizontalGroup(
+            canChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+        canChartLayout.setVerticalGroup(
+            canChartLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 277, Short.MAX_VALUE)
+        );
+
+        jLabel3.setText("Length");
+
+        graphLengthTextField.setText("1000");
+        graphLengthTextField.setToolTipText("");
+        graphLengthTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                graphLengthTextFieldActionPerformed(evt);
+            }
+        });
+
+        addIDButton.setLabel("Add");
+        addIDButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addIDButtonActionPerformed(evt);
+            }
+        });
+
+        removeIDButton.setLabel("Remove");
+        removeIDButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeIDButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Offset");
+
+        typeComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Byte", "Word", "Integer", "Long" }));
+        typeComboBox.setToolTipText("");
+
+        jLabel4.setText("Type");
+
+        offsetComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7" }));
+
+        signedCheckBox.setText("Signed");
+
+        littleEndianCheckBox.setText("Little Endian");
+        littleEndianCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                littleEndianCheckBoxActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout ChartPaneLayout = new javax.swing.GroupLayout(ChartPane);
+        ChartPane.setLayout(ChartPaneLayout);
+        ChartPaneLayout.setHorizontalGroup(
+            ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ChartPaneLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(ChartPaneLayout.createSequentialGroup()
+                        .addGroup(ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(idField, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel1))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(ChartPaneLayout.createSequentialGroup()
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(jLabel4)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(ChartPaneLayout.createSequentialGroup()
+                                .addGap(2, 2, 2)
+                                .addComponent(offsetComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(typeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(signedCheckBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(littleEndianCheckBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(addIDButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(removeIDButton)))
+                        .addGap(18, 18, 18)
+                        .addGroup(ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(graphLengthTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3)))
+                    .addComponent(canChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        ChartPaneLayout.setVerticalGroup(
+            ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(ChartPaneLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(jLabel3)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel4))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(ChartPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(idField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(graphLengthTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(addIDButton)
+                    .addComponent(removeIDButton)
+                    .addComponent(typeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(offsetComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(signedCheckBox)
+                    .addComponent(littleEndianCheckBox))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(canChart, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+
+        mainTabbedPane.addTab("Graph", ChartPane);
+		
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -447,6 +599,7 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
                 .addContainerGap())
         );
 
+		mainTabbedPane.getAccessibleContext().setAccessibleName("Log");
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -480,6 +633,11 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
                 openmodeComboBox.setEnabled(false);
                 log("Connected to USBtin (FW" + usbtin.getFirmwareVersion() + "/HW" + usbtin.getHardwareVersion() + ", SN: " + usbtin.getSerialNumber() + ")", LogMessage.MessageType.INFO);
 
+				/*SAVE COM PORT AND SPEED PREFERENCES*/
+                Preferences prefs = Preferences.userNodeForPackage(USBtinViewer.class);
+                prefs.put("COM_PORT", (String)serialPort.getSelectedItem());
+                prefs.put("CAN_SPEED", (String)bitRate.getSelectedItem());
+                
                 if (baseTimestamp == 0) {
                     baseTimestamp = System.currentTimeMillis();
                 }
@@ -550,6 +708,43 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
         }
     }//GEN-LAST:event_sendMessageActionPerformed
 
+	private void graphLengthTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_graphLengthTextFieldActionPerformed
+        try{
+            int len=Integer.parseUnsignedInt(graphLengthTextField.getText());
+            canChart.setMaxLength(len);
+        }
+        catch (Exception e){
+            
+        }
+    }//GEN-LAST:event_graphLengthTextFieldActionPerformed
+
+    private void removeIDButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeIDButtonActionPerformed
+        try{
+            canChart.removeID(Integer.parseUnsignedInt(idField.getText()),
+                              offsetComboBox.getSelectedIndex());
+        }
+        catch (Exception e){
+        }
+    }//GEN-LAST:event_removeIDButtonActionPerformed
+
+    private void addIDButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addIDButtonActionPerformed
+        try{
+            int id = Integer.parseUnsignedInt(idField.getText());
+            int offset = offsetComboBox.getSelectedIndex();
+            
+            canChart.addID(id,
+                           offset,
+                           typeComboBox.getSelectedIndex(),
+                           signedCheckBox.isSelected(),
+                           littleEndianCheckBox.isSelected());
+        }
+        catch (Exception e){
+        }
+    }//GEN-LAST:event_addIDButtonActionPerformed
+
+    private void littleEndianCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_littleEndianCheckBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_littleEndianCheckBoxActionPerformed
     /**
      * Entry point of USBtinViewer application
      * 
@@ -590,10 +785,20 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel ChartPane;
+    private javax.swing.JButton addIDButton;
     private javax.swing.JComboBox bitRate;
+    private CANChart canChart;
     private javax.swing.JButton clearButton;
     private javax.swing.JButton connectionButton;
     private javax.swing.JToggleButton followButton;
+    private javax.swing.JTextField graphLengthTextField;
+    private javax.swing.JTextField idField;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JCheckBox littleEndianCheckBox;
     private javax.swing.JScrollPane logScrollPane;
     private javax.swing.JTable logTable;
     private javax.swing.JTabbedPane mainTabbedPane;
@@ -611,10 +816,14 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
     private javax.swing.JTextField msgId;
     private javax.swing.JSpinner msgLength;
     private javax.swing.JCheckBox msgRTR;
+	private javax.swing.JComboBox<String> offsetComboBox;
     private javax.swing.JComboBox openmodeComboBox;
+	private javax.swing.JButton removeIDButton;
     private javax.swing.JButton sendButton;
     private javax.swing.JTextField sendMessage;
     private javax.swing.JComboBox serialPort;
+	private javax.swing.JCheckBox signedCheckBox;
+    private javax.swing.JComboBox<String> typeComboBox;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -625,6 +834,7 @@ public class USBtinViewer extends javax.swing.JFrame implements CANMessageListen
     @Override
     public void receiveCANMessage(CANMessage canmsg) {
         log(new LogMessage(canmsg, null, LogMessage.MessageType.IN, System.currentTimeMillis() - baseTimestamp));
+		canChart.addPoint(canmsg);
     }
 
     /**
