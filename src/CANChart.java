@@ -18,7 +18,7 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYDataset;
-
+import java.nio.*;
 /**
  *
  * @author Stefano Patassa
@@ -194,14 +194,25 @@ public class CANChart extends javax.swing.JPanel {
             return res;
         }
         public final int toWord(byte[] data, int offset, boolean signed, boolean littleEndian){
-            int res;
-            if(littleEndian)
-                res = ((((int)data[offset+1])&0xFF)<<8) + ((int)data[offset+0]&0xFF);
-            else 
-                res = ((((int)data[offset+0])&0xFF)<<8) + ((int)data[offset+1]&0xFF);
-            if(!signed)
-                res = res & 0x0000FFFF;
-            return res;
+            byte[] temp = Arrays.copyOfRange(data, offset, offset + 2);
+            if(littleEndian){
+                temp[0]=data[offset + 1];
+                temp[1]=data[offset + 0];
+            }
+            return ByteBuffer.wrap(temp).getShort();
+                    
+                  //  .get  .getInt(); //Big endian by default
+            //int res;
+            //if(littleEndian)
+            //    res = ((((int)data[offset+1])&0xFF)<<8) + ((int)data[offset+0]&0xFF);
+            //else 
+            //    res = ((((int)data[offset+0])&0xFF)<<8) + ((int)data[offset+1]&0xFF);
+            //if(signed)
+            //    sign = res & 0x00008000;
+            //    res = res & 0x0000FFFF
+            //else
+            //    res = res & 0x0000FFFF;
+            //return res;
         }
         public final int toInteger(byte[] data, int offset, boolean signed, boolean littleEndian){
             if(littleEndian)
